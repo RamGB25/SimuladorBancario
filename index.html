@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Bancario</title>
+    
+    <!-- PWA y Favicon -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Simulador">
+    <link rel="apple-touch-icon" href="Simulador-icon.png">
+    <link rel="icon" type="image/png" href="Simulador-icon.png">
+
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* Botones de Selección */
+        .selector-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .btn-mode {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .btn-mode.active {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+
+        /* Tarjeta de Entrada */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 16px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 16px 14px 36px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            outline: none;
+            color: var(--text-main);
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+        }
+
+        /* Escenarios / Resultados */
+        .scenarios-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .results-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+            border-left: 5px solid var(--primary);
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Color predeterminado para montos calculados (Negro) */
+        .result-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Color para el monto ingresado (Azul) */
+        .result-value.highlight {
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: var(--bg-color);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Simulador de Crédito</h1>
+
+    <!-- Tres botones principales -->
+    <div class="selector-grid">
+        <button class="btn-mode active" id="btn-valor" onclick="setMode('VALOR')">VALOR</button>
+        <button class="btn-mode" id="btn-ingreso" onclick="setMode('INGRESO')">INGRESO</button>
+        <button class="btn-mode" id="btn-mensualidad" onclick="setMode('MENSUALIDAD')">MENSUALIDAD</button>
+    </div>
+
+    <!-- Entrada de datos -->
+    <div class="card">
+        <div class="input-group">
+            <label class="input-label" id="input-label">Valor del departamento</label>
+            <div class="input-wrapper">
+                <span class="currency-symbol">$</span>
+                <input
+                    type="text"
+                    id="amount-input"
+                    class="input-field"
+                    inputmode="numeric"
+                    placeholder="0"
+                    oninput="handleInput(this)"
+                >
+            </div>
+        </div>
+    </div>
+
+    <!-- Escenario de Resultados -->
+    <div class="scenarios-title">Resultados Estimados</div>
+   
+    <div class="results-grid">
+        <div class="result-card">
+            <div class="result-row">
+                <span class="result-label">Valor departamento</span>
+                <span class="result-value" id="val-s1-m1">$0</span>
+            </div>
+            <div class="divider"></div>
+            <div class="result-row">
+                <span class="result-label">Ingreso requerido</span>
+                <span class="result-value" id="val-s1-m2">$0</span>
+            </div>
+            <div class="divider"></div>
+            <div class="result-row">
+                <span class="result-label">Mensualidad</span>
+                <span class="result-value" id="val-s1-m3">$0</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const FACTOR_INGRESO = 0.0181872;
+    const FACTOR_MENSUALIDAD = 0.0095724;
+
+    let currentMode = 'VALOR';
+
+    const labels = {
+        VALOR: 'Valor del departamento',
+        INGRESO: 'Ingreso mensual del cliente',
+        MENSUALIDAD: 'Mensualidad estimada'
+    };
+
+    function setMode(mode) {
+        currentMode = mode;
+
+        document.querySelectorAll('.btn-mode').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-${mode.toLowerCase()}`).classList.add('active');
+
+        document.getElementById('input-label').innerText = labels[mode];
+
+        calculate();
+    }
+
+    function formatNumber(val) {
+        if (!val && val !== 0) return '';
+        return Math.round(val).toLocaleString('es-MX');
+    }
+
+    function parseFormattedNumber(str) {
+        return parseFloat(str.replace(/,/g, '')) || 0;
+    }
+
+    function handleInput(input) {
+        let rawValue = input.value.replace(/[^0-9]/g, '');
+        if (rawValue) {
+            let num = parseInt(rawValue, 10);
+            input.value = num.toLocaleString('es-MX');
+        } else {
+            input.value = '';
+        }
+        calculate();
+    }
+
+    function calculate() {
+        const inputElement = document.getElementById('amount-input');
+        const rawAmount = parseFormattedNumber(inputElement.value);
+
+        let valor = 0;
+        let ingreso = 0;
+        let mensualidad = 0;
+
+        if (rawAmount > 0) {
+            if (currentMode === 'VALOR') {
+                valor = rawAmount;
+                ingreso = valor * FACTOR_INGRESO;
+                mensualidad = valor * FACTOR_MENSUALIDAD;
+            } else if (currentMode === 'INGRESO') {
+                ingreso = rawAmount;
+                valor = ingreso / FACTOR_INGRESO;
+                mensualidad = valor * FACTOR_MENSUALIDAD;
+            } else if (currentMode === 'MENSUALIDAD') {
+                mensualidad = rawAmount;
+                valor = mensualidad / FACTOR_MENSUALIDAD;
+                ingreso = valor * FACTOR_INGRESO;
+            }
+        }
+
+        const elValor = document.getElementById('val-s1-m1');
+        const elIngreso = document.getElementById('val-s1-m2');
+        const elMensualidad = document.getElementById('val-s1-m3');
+
+        // Asignar los montos formateados
+        elValor.innerText = '$' + formatNumber(valor);
+        elIngreso.innerText = '$' + formatNumber(ingreso);
+        elMensualidad.innerText = '$' + formatNumber(mensualidad);
+
+        // Limpiar estilos de resaltado
+        elValor.classList.remove('highlight');
+        elIngreso.classList.remove('highlight');
+        elMensualidad.classList.remove('highlight');
+
+        // Asignar color azul (.highlight) únicamente al dato capturado
+        if (currentMode === 'VALOR') {
+            elValor.classList.add('highlight');
+        } else if (currentMode === 'INGRESO') {
+            elIngreso.classList.add('highlight');
+        } else if (currentMode === 'MENSUALIDAD') {
+            elMensualidad.classList.add('highlight');
+        }
+    }
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registrado con éxito'))
+                .catch(err => console.error('Error al registrar Service Worker:', err));
+        });
+    }
+</script>
+
+</body>
+</html>
