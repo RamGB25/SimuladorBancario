@@ -1,28 +1,21 @@
-const CACHE_NAME = 'simulador-bancario-v4';
-const ASSETS = [
-    './',
-    './index.html',
-    './manifest.json',
-    './src/Simulador-icon.png',
-    './src/casa.png',
-    './src/valor.png',
-    './src/ingreso.png',
-    './src/mensualidad.png',
-    './src/informacion.png'
-];
-
-self.addEventListener('install', (e) => {
-    e.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(ASSETS);
-        })
-    );
-});
-
-self.addEventListener('fetch', (e) => {
-    e.respondWith(
-        caches.match(e.request).then((response) => {
-            return response || fetch(e.request);
-        })
-    );
-});
+{
+  "short_name": "Simulador",
+  "name": "Simulador Bancario",
+  "icons": [
+    {
+      "src": "src/Simulador-icon.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "src/Simulador-icon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#f4f7fb",
+  "theme_color": "#0052cc",
+  "display": "standalone",
+  "orientation": "portrait"
+}
