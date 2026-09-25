@@ -5,24 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulador Bancario</title>
     
-    <!-- PWA y Favicon -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Simulador">
-    <link rel="apple-touch-icon" href="Simulador-icon.png">
-    <link rel="icon" type="image/png" href="Simulador-icon.png">
+    <link rel="apple-touch-icon" href="src/Simulador-icon.png">
+    <link rel="icon" type="image/png" href="src/Simulador-icon.png">
 
     <style>
         :root {
             --bg-color: #f1f5f9;
             --card-bg: #ffffff;
-            --primary: #2563eb;
-            --primary-light: #eff6ff;
+            --primary: #0052cc;
+            --primary-dark: #003e99;
+            --primary-light: #e8f0fe;
             --text-main: #0f172a;
             --text-muted: #64748b;
-            --border-color: #cbd5e1;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
         }
 
         * {
@@ -44,65 +45,120 @@
 
         .container {
             width: 100%;
-            max-width: 480px;
+            max-width: 440px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
+            padding-bottom: 24px;
         }
 
-        h1 {
-            text-align: center;
-            font-size: 1.25rem;
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 4px;
+        }
+
+        .header-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+
+        .header-icon-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .header-titles h1 {
+            font-size: 1.35rem;
+            color: var(--text-main);
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .header-titles p {
+            font-size: 0.85rem;
             color: var(--text-muted);
-            font-weight: 600;
-            margin-top: 8px;
+            font-weight: 500;
         }
 
-        /* Botones de Selección */
+        /* Selector de Modo */
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-top: 4px;
+        }
+
         .selector-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
+            gap: 10px;
         }
 
         .btn-mode {
             background: var(--card-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            padding: 14px 8px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            color: var(--text-muted);
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            padding: 12px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
             cursor: pointer;
             transition: all 0.2s ease;
-            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .btn-mode .btn-icon-img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            filter: grayscale(20%) opacity(0.8);
+        }
+
+        .btn-mode span {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
         }
 
         .btn-mode.active {
-            background: var(--primary-light);
+            background: var(--primary);
             border-color: var(--primary);
-            color: var(--primary);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+
+        .btn-mode.active .btn-icon-img {
+            filter: brightness(0) invert(1);
+        }
+
+        .btn-mode.active span {
+            color: #ffffff;
         }
 
         /* Tarjeta de Entrada */
         .card {
             background: var(--card-bg);
             border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
         }
 
         .input-label {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 600;
             color: var(--text-muted);
+            margin-bottom: 6px;
+            display: block;
         }
 
         .input-wrapper {
@@ -111,134 +167,194 @@
             align-items: center;
         }
 
-        .currency-symbol {
-            position: absolute;
-            left: 16px;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-muted);
-        }
-
         .input-field {
             width: 100%;
-            padding: 14px 16px 14px 36px;
-            font-size: 1.5rem;
-            font-weight: 700;
-            border: 2px solid var(--border-color);
+            padding: 12px 40px 12px 14px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            border: 1.5px solid var(--border-color);
             border-radius: 12px;
             outline: none;
             color: var(--text-main);
-            transition: border-color 0.2s;
+            background: #f8fafc;
         }
 
         .input-field:focus {
             border-color: var(--primary);
+            background: #ffffff;
         }
 
-        /* Escenarios / Resultados */
-        .scenarios-title {
-            font-size: 1rem;
-            font-weight: 700;
+        .input-icon-img {
+            position: absolute;
+            right: 14px;
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            opacity: 0.6;
+        }
+
+        .info-text {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 0.78rem;
             color: var(--text-muted);
-            margin-top: 8px;
+            margin-top: 10px;
+            line-height: 1.3;
         }
 
-        .results-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        .info-icon-img {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+            flex-shrink: 0;
+            margin-top: 1px;
         }
 
-        .result-card {
+        /* Resultados estilo Banco */
+        .results-card {
             background: var(--card-bg);
-            border-radius: 12px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
-            border-left: 5px solid var(--primary);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
         }
 
-        .result-row {
+        .bank-banner {
+            background: linear-gradient(135deg, #004481 0%, #1464a5 100%);
+            color: white;
+            padding: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .result-label {
-            font-size: 0.85rem;
+        .bank-logo {
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .bank-subtitle {
+            font-size: 0.75rem;
+            opacity: 0.85;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .results-columns {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            padding: 16px 10px;
+            text-align: center;
+            gap: 4px;
+        }
+
+        .res-col {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 0 4px;
+        }
+
+        .res-col:not(:last-child) {
+            border-right: 1px solid var(--border-color);
+        }
+
+        .res-label {
+            font-size: 0.72rem;
             color: var(--text-muted);
-            font-weight: 500;
+            font-weight: 600;
+            line-height: 1.2;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* Color predeterminado para montos calculados (Negro) */
-        .result-value {
-            font-size: 1.1rem;
-            font-weight: 700;
+        .res-val {
+            font-size: 0.95rem;
+            font-weight: 800;
             color: var(--text-main);
+            word-break: break-word;
         }
 
-        /* Color para el monto ingresado (Azul) */
-        .result-value.highlight {
+        .res-val.highlight {
             color: var(--primary);
-            font-size: 1.25rem;
-        }
-
-        .divider {
-            height: 1px;
-            background-color: var(--bg-color);
+            font-size: 1.05rem;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Simulador de Crédito</h1>
+    <!-- Encabezado -->
+    <div class="header">
+        <div class="header-icon">
+            <img src="src/casa.png" alt="Casa" class="header-icon-img">
+        </div>
+        <div class="header-titles">
+            <h1>Simulador Bancario</h1>
+            <p>Captura solo uno de los datos</p>
+        </div>
+    </div>
 
-    <!-- Tres botones principales -->
+    <!-- Modos de Captura -->
+    <div class="section-title">Capturar por:</div>
     <div class="selector-grid">
-        <button class="btn-mode active" id="btn-valor" onclick="setMode('VALOR')">VALOR</button>
-        <button class="btn-mode" id="btn-ingreso" onclick="setMode('INGRESO')">INGRESO</button>
-        <button class="btn-mode" id="btn-mensualidad" onclick="setMode('MENSUALIDAD')">MENSUALIDAD</button>
+        <button class="btn-mode active" id="btn-valor" onclick="setMode('VALOR')">
+            <img src="src/valor.png" alt="Valor" class="btn-icon-img">
+            <span>Valor</span>
+        </button>
+        <button class="btn-mode" id="btn-ingreso" onclick="setMode('INGRESO')">
+            <img src="src/ingreso.png" alt="Ingreso" class="btn-icon-img">
+            <span>Ingreso</span>
+        </button>
+        <button class="btn-mode" id="btn-mensualidad" onclick="setMode('MENSUALIDAD')">
+            <img src="src/mensualidad.png" alt="Mensualidad" class="btn-icon-img">
+            <span>Mensualidad</span>
+        </button>
     </div>
 
     <!-- Entrada de datos -->
     <div class="card">
-        <div class="input-group">
-            <label class="input-label" id="input-label">Valor del departamento</label>
-            <div class="input-wrapper">
-                <span class="currency-symbol">$</span>
-                <input
-                    type="text"
-                    id="amount-input"
-                    class="input-field"
-                    inputmode="numeric"
-                    placeholder="0"
-                    oninput="handleInput(this)"
-                >
-            </div>
+        <label class="input-label" id="input-label">Valor del departamento</label>
+        <div class="input-wrapper">
+            <input
+                type="text"
+                id="amount-input"
+                class="input-field"
+                inputmode="numeric"
+                placeholder="$0"
+                oninput="handleInput(this)"
+            >
+            <img src="src/valor.png" alt="Icono" class="input-icon-img" id="input-icon">
+        </div>
+        <div class="info-text">
+            <img src="src/informacion.png" class="info-icon-img">
+            <span>Solo se captura uno: valor, ingreso o mensualidad.</span>
         </div>
     </div>
 
-    <!-- Escenario de Resultados -->
-    <div class="scenarios-title">Resultados Estimados</div>
-   
-    <div class="results-grid">
-        <div class="result-card">
-            <div class="result-row">
-                <span class="result-label">Valor departamento</span>
-                <span class="result-value" id="val-s1-m1">$0</span>
+    <!-- Resultados estilo Banco -->
+    <div class="section-title">Resultados de tu simulación</div>
+    <div class="results-card">
+        <div class="bank-banner">
+           <!-- <div class="bank-logo">BBVA</div>-->
+            <div class="bank-subtitle">Escenario Estimado</div>
+        </div>
+        <div class="results-columns">
+            <div class="res-col">
+                <span class="res-label">Valor del dpto.</span>
+                <span class="res-val highlight" id="val-s1-m1">$0</span>
             </div>
-            <div class="divider"></div>
-            <div class="result-row">
-                <span class="result-label">Ingreso requerido</span>
-                <span class="result-value" id="val-s1-m2">$0</span>
+            <div class="res-col">
+                <span class="res-label">Ingreso mensual</span>
+                <span class="res-val" id="val-s1-m2">$0</span>
             </div>
-            <div class="divider"></div>
-            <div class="result-row">
-                <span class="result-label">Mensualidad</span>
-                <span class="result-value" id="val-s1-m3">$0</span>
+            <div class="res-col">
+                <span class="res-label">Mensualidad</span>
+                <span class="res-val" id="val-s1-m3">$0</span>
             </div>
         </div>
     </div>
@@ -256,6 +372,12 @@
         MENSUALIDAD: 'Mensualidad estimada'
     };
 
+    const iconSources = {
+        VALOR: 'src/valor.png',
+        INGRESO: 'src/ingreso.png',
+        MENSUALIDAD: 'src/mensualidad.png'
+    };
+
     function setMode(mode) {
         currentMode = mode;
 
@@ -263,24 +385,25 @@
         document.getElementById(`btn-${mode.toLowerCase()}`).classList.add('active');
 
         document.getElementById('input-label').innerText = labels[mode];
+        document.getElementById('input-icon').src = iconSources[mode];
 
         calculate();
     }
 
     function formatNumber(val) {
-        if (!val && val !== 0) return '';
+        if (!val && val !== 0) return '0';
         return Math.round(val).toLocaleString('es-MX');
     }
 
     function parseFormattedNumber(str) {
-        return parseFloat(str.replace(/,/g, '')) || 0;
+        return parseFloat(str.replace(/[^0-9]/g, '')) || 0;
     }
 
     function handleInput(input) {
         let rawValue = input.value.replace(/[^0-9]/g, '');
         if (rawValue) {
             let num = parseInt(rawValue, 10);
-            input.value = num.toLocaleString('es-MX');
+            input.value = '$' + num.toLocaleString('es-MX');
         } else {
             input.value = '';
         }
@@ -315,17 +438,16 @@
         const elIngreso = document.getElementById('val-s1-m2');
         const elMensualidad = document.getElementById('val-s1-m3');
 
-        // Asignar los montos formateados
         elValor.innerText = '$' + formatNumber(valor);
         elIngreso.innerText = '$' + formatNumber(ingreso);
         elMensualidad.innerText = '$' + formatNumber(mensualidad);
 
-        // Limpiar estilos de resaltado
+        // Limpiar resaltado
         elValor.classList.remove('highlight');
         elIngreso.classList.remove('highlight');
         elMensualidad.classList.remove('highlight');
 
-        // Asignar color azul (.highlight) únicamente al dato capturado
+        // Resaltar en azul únicamente el valor ingresado
         if (currentMode === 'VALOR') {
             elValor.classList.add('highlight');
         } else if (currentMode === 'INGRESO') {
@@ -335,11 +457,12 @@
         }
     }
 
+    // Registro de Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Service Worker registrado con éxito'))
-                .catch(err => console.error('Error al registrar Service Worker:', err));
+                .then(reg => console.log('Service Worker registrado'))
+                .catch(err => console.error('Error SW:', err));
         });
     }
 </script>
