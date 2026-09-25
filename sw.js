@@ -3,7 +3,12 @@ const ASSETS = [
     './',
     './index.html',
     './manifest.json',
-    './Simulador-icon.png'
+    './src/Simulador-icon.png',
+    './src/casa.png',
+    './src/valor.png',
+    './src/ingreso.png',
+    './src/mensualidad.png',
+    './src/informacion.png'
 ];
 
 self.addEventListener('install', (e) => {
