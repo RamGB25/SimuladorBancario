@@ -3,19 +3,19 @@
   "name": "Simulador Bancario",
   "icons": [
     {
-      "src": "Simulador-icon.png",
+      "src": "src/Simulador-icon.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "Simulador-icon.png",
+      "src": "src/Simulador-icon.png",
       "type": "image/png",
       "sizes": "512x512"
     }
   ],
   "start_url": "./index.html",
-  "background_color": "#f1f5f9",
-  "theme_color": "#2563eb",
+  "background_color": "#f4f7fb",
+  "theme_color": "#0052cc",
   "display": "standalone",
   "orientation": "portrait"
 }
