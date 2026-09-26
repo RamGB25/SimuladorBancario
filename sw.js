@@ -1,4 +1,4 @@
-const CACHE_NAME = 'simulador-bancario-v4';
+const CACHE_NAME = 'simulador-bancario-v6';
 const ASSETS = [
     './',
     './index.html',
