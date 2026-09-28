@@ -1,4 +1,4 @@
-const CACHE_NAME = 'simulador-bancario-v6';
+const CACHE_NAME = 'simulador-bancario-v7';
 const ASSETS = [
     './',
     './index.html',
@@ -12,6 +12,7 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
+    self.skipWaiting();
     e.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             return cache.addAll(ASSETS);
@@ -19,6 +20,23 @@ self.addEventListener('install', (e) => {
     );
 });
 
+//Borrar cache y tomar la ultima version
+self.addEventListener('activate', (e) => {
+    e.waitUntil(
+        caches.keys().then((keys) => {
+            return Promise.all(
+                keys.map((key) => {
+                    if (key !== CACHE_NAME) {
+                        return caches.delete(key); //elimina el cahce de forma autoomatica
+                    }
+                })
+            );
+        }).then(() => self.clients.claim())
+    );
+});
+
+
+// --
 self.addEventListener('fetch', (e) => {
     e.respondWith(
         caches.match(e.request).then((response) => {
