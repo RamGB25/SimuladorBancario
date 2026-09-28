@@ -461,14 +461,36 @@
         }
     }
 
-    // Registro de Service Worker
+    
+    // Busca la ultima acctualizacion 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Service Worker registrado'))
-                .catch(err => console.error('Error SW:', err));
+            navigator.serviceWorker.register('sw.js').then((reg) => {
+                console.log('Service Worker registrado');
+                
+                // detecta si hay actualizacion
+                reg.addEventListener('updatefound', () => {
+                    const newWorker = reg.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            // si tiene actualizacion la palica
+                            window.location.reload();
+                        }
+                    });
+                });
+            }).catch(err => console.error('Error SW:', err));
+        });
+
+        // recarga para ver lo ultimo
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+                refreshing = true;
+                window.location.reload();
+            }
         });
     }
+    
 </script>
 
 </body>
